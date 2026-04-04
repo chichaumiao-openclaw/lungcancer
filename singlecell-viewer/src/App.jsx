@@ -1,7 +1,47 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { json } from 'd3-fetch';
-import AnatomicalMap from './AnatomicalMap.jsx';
 import SingleCellPlot from './SingleCellPlot.jsx';
+
+const SUBTYPE_BACKBONE = [
+  { id: 'luad', label: 'LUAD', tone: '#3b82f6' },
+  { id: 'lusc', label: 'LUSC', tone: '#8b5cf6' },
+  { id: 'sclc', label: 'SCLC', tone: '#ec4899' },
+  { id: 'treated', label: 'Treated', tone: '#f97316' },
+  { id: 'resistant', label: 'Resistant', tone: '#ef4444' }
+];
+
+function getInitialSubtype() {
+  const fallback = SUBTYPE_BACKBONE[0].id;
+  if (typeof window === 'undefined') return fallback;
+  const subtype = new URLSearchParams(window.location.search).get('subtype');
+  return SUBTYPE_BACKBONE.some((item) => item.id === subtype) ? subtype : fallback;
+}
+
+function getInitialMode() {
+  if (typeof window === 'undefined') return 'light';
+  const mode = new URLSearchParams(window.location.search).get('mode');
+  return mode === 'dark' ? 'dark' : 'light';
+}
+
+function assignSubtypes(x, y) {
+  const points = x.map((xValue, index) => ({
+    index,
+    score: Number(xValue || 0) + Number(y[index] || 0) * 0.18
+  }));
+
+  points.sort((a, b) => a.score - b.score);
+
+  const assignments = new Array(points.length);
+  points.forEach((point, rank) => {
+    const subtypeIndex = Math.min(
+      SUBTYPE_BACKBONE.length - 1,
+      Math.floor((rank * SUBTYPE_BACKBONE.length) / Math.max(points.length, 1))
+    );
+    assignments[point.index] = SUBTYPE_BACKBONE[subtypeIndex].id;
+  });
+
+  return assignments;
+}
 
 function hslToRgba(h, s, l) {
   const a = s * Math.min(l, 1 - l);
@@ -45,7 +85,8 @@ function categoryColor(category) {
 }
 
 export default function App() {
-  const [selectedOrgan, setSelectedOrgan] = useState('All');
+  const [selectedSubtype, setSelectedSubtype] = useState(getInitialSubtype);
+  const [viewerMode] = useState(getInitialMode);
   const [baseData, setBaseData] = useState([]);
   const [obsColumns, setObsColumns] = useState({});
   const [obsFields, setObsFields] = useState([]);
@@ -69,6 +110,7 @@ export default function App() {
       const organ = umapColumns?.organ || [];
       const cellType = umapColumns?.cell_type || [];
       const n = Math.min(x.length, y.length);
+      const subtypeAssignments = assignSubtypes(x, y);
 
       const points = new Array(n);
       for (let i = 0; i < n; i += 1) {
@@ -77,22 +119,41 @@ export default function App() {
           x: x[i],
           y: y[i],
           organ: organ[i] ?? 'All',
-          cell_type: cellType[i] ?? 'unknown'
+          cell_type: cellType[i] ?? 'unknown',
+          subtype: subtypeAssignments[i]
         };
       }
 
       setBaseData(points);
-      setObsColumns(umapColumns?.obs || {});
-      setObsFields(metadata?.obs_fields || [
+      setObsColumns({ ...(umapColumns?.obs || {}), subtype: subtypeAssignments });
+
+      const metadataFields = metadata?.obs_fields || [
         { name: 'cell_type', kind: 'categorical' },
         { name: 'organ', kind: 'categorical' }
-      ]);
-      setColorField(metadata?.default_color_field || '');
+      ];
+      const mergedFields = metadataFields.some((field) => field.name === 'subtype')
+        ? metadataFields
+        : [{ name: 'subtype', kind: 'categorical' }, ...metadataFields];
+      setObsFields(mergedFields);
+      setColorField(metadata?.default_color_field || 'cell_type');
       setGeneIndex(metadata?.genes || []);
     }
 
     loadStaticData();
   }, []);
+
+  useEffect(() => {
+    document.body.setAttribute('data-mode', viewerMode);
+  }, [viewerMode]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('subtype', selectedSubtype);
+    url.searchParams.set('mode', viewerMode);
+    window.history.replaceState({}, '', url);
+    window.parent?.postMessage({ type: 'lungcancer-subtype-change', subtype: selectedSubtype }, '*');
+  }, [selectedSubtype, viewerMode]);
 
   useEffect(() => {
     if (!geneQuery) {
@@ -118,6 +179,7 @@ export default function App() {
     if (!colorField) return [];
     if (colorField === 'organ') return baseData.map((d) => d.organ);
     if (colorField === 'cell_type') return baseData.map((d) => d.cell_type);
+    if (colorField === 'subtype') return baseData.map((d) => d.subtype);
     return obsColumns[colorField] || [];
   }, [colorField, baseData, obsColumns]);
 
@@ -155,17 +217,33 @@ export default function App() {
     });
   }, [baseData, geneValues, obsColor]);
 
-  const organs = useMemo(() => ['All', ...new Set(baseData.map((d) => d.organ).filter(Boolean))], [baseData]);
+  const activeSubtypeLabel = SUBTYPE_BACKBONE.find((item) => item.id === selectedSubtype)?.label ?? 'LUAD';
 
   return (
-    <div className="app-wrap">
+    <div className="app-wrap" data-mode={viewerMode}>
       <header>
-        <h2>React Single-Cell Data Viewer</h2>
-        <p>Static JSON/columnar mode (GitHub Pages ready)</p>
+        <h2>Single-Cell Data Viewer</h2>
+        <p>{viewerMode === 'dark' ? 'Dark' : 'Light'} mode synced from the parent lungcancer subtypes page.</p>
       </header>
       <div className="dashboard-layout">
         <div>
-          <AnatomicalMap selectedOrgan={selectedOrgan} onSelectOrgan={setSelectedOrgan} organs={organs} />
+          <div className="panel">
+            <h3>Subtype Backbone</h3>
+            <p className="hint">Switch the UMAP subset across five simulated lung cancer subtype and clinical-state groups derived from the bundled lungdev coordinates.</p>
+            <div className="subtype-button-grid">
+              {SUBTYPE_BACKBONE.map((subtype) => (
+                <button
+                  key={subtype.id}
+                  className={`subtype-button ${selectedSubtype === subtype.id ? 'active' : ''}`}
+                  style={{ '--subtypeTone': subtype.tone }}
+                  onClick={() => setSelectedSubtype(subtype.id)}
+                >
+                  {subtype.label}
+                </button>
+              ))}
+            </div>
+            <div className="subset-badge">Subtype subset: {activeSubtypeLabel}</div>
+          </div>
           <div className="panel" style={{ marginTop: 12 }}>
             <h3>Color Controls</h3>
             <label>Obs metadata field</label>
@@ -174,7 +252,7 @@ export default function App() {
               {obsFields.map((f) => <option key={f.name} value={f.name}>{f.name} ({f.kind})</option>)}
             </select>
             <label style={{ marginTop: 8 }}>Gene search (var_names)</label>
-            <input value={geneQuery} onChange={(e) => setGeneQuery(e.target.value)} placeholder="e.g. LST1" />
+            <input value={geneQuery} onChange={(e) => setGeneQuery(e.target.value)} placeholder="e.g. EGFR" />
             {geneMatches.length > 0 && (
               <div className="gene-list">
                 {geneMatches.map((g) => <button key={g} onClick={() => selectGene(g)}>{g}</button>)}
@@ -183,7 +261,7 @@ export default function App() {
             <p className="hint">{activeGene ? `Colored by ${activeGene} expression (viridis)` : (colorField ? `Colored by ${colorField}` : 'Coordinate-only rendering')}</p>
           </div>
         </div>
-        <SingleCellPlot data={coloredData} selectedOrgan={selectedOrgan} />
+        <SingleCellPlot data={coloredData} selectedSubtype={selectedSubtype} subtypeLabel={activeSubtypeLabel} />
       </div>
     </div>
   );
