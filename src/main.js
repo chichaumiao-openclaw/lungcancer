@@ -14,7 +14,6 @@ import { normalizeRoute, routeFromHash } from './router.js';
 
 let route = routeFromHash(window.location.hash);
 let mode = 'light';
-let viewerSubtype = subtypeBackbone[0].id;
 let mobileNavOpen = false;
 
 const institutionalLinks = [
@@ -180,7 +179,7 @@ function renderFooter() {
 function pageFor(name) {
   const safeRoute = normalizeRoute(name);
   if (safeRoute === 'cohorts') return renderCohortsPage();
-  if (safeRoute === 'subtypes') return renderSubtypesPage(viewerSubtype, mode);
+  if (safeRoute === 'subtypes') return renderSubtypesPage(mode);
   if (safeRoute === 'biomarkers') return renderBiomarkersPage();
   if (safeRoute === 'clinical') return renderClinicalPage();
   if (safeRoute === 'datasets') return renderDatasetsPage();
@@ -205,17 +204,28 @@ function bindNavigation() {
   });
 }
 
-function bindViewerMessages() {
-  if (window.__lungcancerViewerListenerBound) return;
-
-  window.addEventListener('message', (event) => {
-    const payload = event.data;
-    if (!payload || payload.type !== 'lungcancer-subtype-change') return;
-    if (!subtypeBackbone.some((subtype) => subtype.id === payload.subtype)) return;
-    viewerSubtype = payload.subtype;
+function bindClickableRows() {
+  // Legacy clickable rows (other tables)
+  document.querySelectorAll('.clickable-row[data-href]').forEach((row) => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('a, button')) return;
+      const href = row.getAttribute('data-href');
+      if (href) {
+        window.location.href = href;
+      }
+    });
   });
 
-  window.__lungcancerViewerListenerBound = true;
+  // Dataset release rows (lungdev-style)
+  document.querySelectorAll('.dataset-row[data-href]').forEach((row) => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('a, button')) return;
+      const href = row.getAttribute('data-href');
+      if (href) {
+        window.location.href = href;
+      }
+    });
+  });
 }
 
 function bindModeToggle() {
@@ -232,6 +242,24 @@ function bindMenuToggle() {
   });
 }
 
+function bindExpandDrawers() {
+  document.querySelectorAll('.stage-inline-expand').forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetId = button.getAttribute('data-target');
+      const target = document.getElementById(targetId);
+      const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+      if (isExpanded) {
+        button.setAttribute('aria-expanded', 'false');
+        target?.classList.remove('show');
+      } else {
+        button.setAttribute('aria-expanded', 'true');
+        target?.classList.add('show');
+      }
+    });
+  });
+}
+
 function render(options = {}) {
   const { preserveScroll = false } = options;
   const previousScrollX = window.scrollX;
@@ -242,9 +270,10 @@ function render(options = {}) {
   document.getElementById('app').innerHTML = `${renderHeader()}${pageFor(route)}${renderFooter()}`;
 
   bindNavigation();
-  bindViewerMessages();
   bindModeToggle();
   bindMenuToggle();
+  bindExpandDrawers();
+  bindClickableRows();
   initBiomarkerSearch();
 
   if (preserveScroll) {

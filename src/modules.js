@@ -42,24 +42,6 @@ function bundleHref(siteId, route = 'home') {
   return route ? `${site.url}#${route}` : site.url;
 }
 
-function getSingleCellViewerUrl() {
-  if (typeof window === 'undefined') return './singlecell-viewer/';
-  const pathname = window.location.pathname || '';
-  if (pathname.includes('/dist/') || pathname.endsWith('/dist') || pathname.endsWith('/dist/index.html')) {
-    return './singlecell-viewer/';
-  }
-  return './singlecell-viewer/dist/';
-}
-
-function viewerUrlForConfig(subtypeId, mode = 'light') {
-  const baseUrl = getSingleCellViewerUrl();
-  const url = new URL(baseUrl, typeof window === 'undefined' ? 'http://localhost' : window.location.href);
-  if (subtypeId) url.searchParams.set('subtype', subtypeId);
-  url.searchParams.set('mode', mode === 'dark' ? 'dark' : 'light');
-  if (typeof window === 'undefined') return `${url.pathname}${url.search}`;
-  return `${url.pathname}${url.search}`;
-}
-
 function renderBiomarkerResults(items, options = {}) {
   const limit = Number(options.limit || 0);
   const visible = limit > 0 ? items.slice(0, limit) : items;
@@ -132,7 +114,7 @@ export function renderCohortSection() {
     ${renderSectionHead(
       'Cohort matrix',
       'Five cohort frames organize the MVP around clinical and biological context',
-      'Each cohort card defines a distinct tumor ecosystem comparison problem rather than a generic study listing.'
+      'Each stage card anchors a distinct developmental question, dominant compartments, and biological emphasis.'
     )}
     <div class="cohort-grid">
       ${cohortMatrix
@@ -164,16 +146,37 @@ export function renderSubtypeSection(options = {}) {
     <div class="subtype-grid ${compact ? 'compact' : ''}">
       ${visibleSubtypes
         .map(
-          (subtype) => `<article class="subtype-card card">
+          (subtype) => `<article class="subtype-card card" style="--card-color: ${subtype.color}; --card-ink: ${subtype.ink}">
             <div class="stage-meta">
               <span>${String(subtype.rank).padStart(2, '0')}</span>
               <p>${subtype.cohort}</p>
             </div>
             <h3>${subtype.label}</h3>
             <p class="stage-headline">${subtype.state}</p>
-            <p>${subtype.summary}</p>
+
+            <p class="stage-section-header">Biological Emphasis</p>
+            <p class="bio-emphasis">${subtype.biologicalEmphasis || subtype.summary}</p>
+
+            <button class="stage-inline-expand" data-target="other-events-${subtype.id}" aria-expanded="false">
+              Other Events <span class="expand-arrow">&#9654;</span>
+            </button>
+            <div class="stage-expand-content" id="other-events-${subtype.id}">${subtype.otherEvents || ''}</div>
+
+            <p class="stage-section-header">Dominant Compartments</p>
             ${renderChipList(subtype.traits)}
-            <p class="stage-question">${subtype.question}</p>
+
+            <button class="stage-inline-expand" data-target="cell-interactions-${subtype.id}" aria-expanded="false">
+              Cell-Cell Interactions <span class="expand-arrow">&#9654;</span>
+            </button>
+            <div class="stage-expand-content" id="cell-interactions-${subtype.id}">${subtype.cellInteractions || ''}</div>
+
+            <p class="stage-section-header">RESEARCH Question</p>
+            <p class="bio-emphasis">${subtype.question}</p>
+
+            <button class="stage-inline-expand" data-target="more-questions-${subtype.id}" aria-expanded="false">
+              More Questions <span class="expand-arrow">&#9654;</span>
+            </button>
+            <div class="stage-expand-content" id="more-questions-${subtype.id}">${subtype.moreQuestions || ''}</div>
           </article>`
         )
         .join('')}
@@ -183,35 +186,6 @@ export function renderSubtypeSection(options = {}) {
         ? `<div class="section-action"><button type="button" class="ghost" data-route="subtypes">Inspect full subtype explorer</button></div>`
         : ''
     }
-  </section>`;
-}
-
-export function renderSubtypeViewerSection(selectedSubtype = 'luad', mode = 'light') {
-  const viewerUrl = viewerUrlForConfig(selectedSubtype, mode);
-
-  return `<section class="section-block" id="LC-UMAP-001">
-    ${renderSectionHead(
-      'Single-cell viewer',
-      'Subtype-centered UMAP exploration',
-      'The Subtypes page is centered on the embedded single-cell viewer. Subtype buttons live inside the viewer so the embedding can stay wide and visually primary.'
-    )}
-    <article class="card atlas-viewer-card atlas-viewer-wide">
-      <div class="atlas-viewer-head">
-        <div>
-          <p class="eyebrow">Single-cell Data Viewer</p>
-          <h2>UMAP-first lung cancer subtype exploration</h2>
-          <p>This viewer uses simulated subtype subsets derived from the bundled lungdev coordinates so the portal can use the same real viewer interface without showing static UMAP images.</p>
-        </div>
-        <a class="atlas-link" href="${viewerUrl}" target="_blank" rel="noopener noreferrer">Open viewer in new tab</a>
-      </div>
-      <iframe
-        title="lungcancer single-cell subtype viewer"
-        src="${viewerUrl}"
-        class="atlas-viewer-frame"
-        loading="lazy"
-      ></iframe>
-      <p class="atlas-note">If the panel is blank, build the viewer in <code>singlecell-viewer/</code> and then rerun the top-level build.</p>
-    </article>
   </section>`;
 }
 
@@ -285,13 +259,13 @@ export function renderDatasetSection(options = {}) {
     ${renderSectionHead(
       'Datasets and releases',
       'Cohort-scoped release rows make clinical framing explicit',
-      'Each release states its cohort scope, respiratory structure emphasis, assay footprint, and current prototype interpretation limits.'
+      'Each release states its cohort scope, respiratory structure emphasis, assay footprint, and current interpretation limits.'
     )}
     <article class="card data-table-card">
       <div class="table-card-head">
         <div>
           <h3>Lung cancer cohort release table</h3>
-          <p>${compact ? `Showing ${visibleDatasets.length} of ${datasetReleases.length} current prototype releases.` : `Showing all ${datasetReleases.length} current prototype releases.`}</p>
+          <p>${compact ? `Showing ${visibleDatasets.length} of ${datasetReleases.length} current releases.` : `Showing all ${datasetReleases.length} current releases.`}</p>
         </div>
       </div>
       <div class="table-container">
@@ -299,10 +273,7 @@ export function renderDatasetSection(options = {}) {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Dataset</th>
               <th>Cohort</th>
-              <th>Structure</th>
-              <th>Cells</th>
               <th>Assays</th>
               <th>Status</th>
               <th>Notes</th>
@@ -311,12 +282,9 @@ export function renderDatasetSection(options = {}) {
           <tbody>
             ${visibleDatasets
               .map(
-                (dataset) => `<tr>
+                (dataset) => `<tr class="dataset-row" data-dataset-id="${dataset.id}" ${dataset.url ? `data-href="${dataset.url}"` : ''} style="cursor: pointer;">
                   <td>${dataset.id}</td>
-                  <td><strong>${dataset.title}</strong></td>
-                  <td>${dataset.cohortScope}</td>
-                  <td>${dataset.structure}</td>
-                  <td>${dataset.cells}</td>
+                  <td>${dataset.cohortScope.split(',').map(tag => `<span class="cohort-tag">${tag.trim()}</span>`).join(' ')}</td>
                   <td>${dataset.assays}</td>
                   <td><span class="table-status">${dataset.status}</span></td>
                   <td>${dataset.note}</td>
@@ -340,7 +308,7 @@ export function renderEvidenceSection() {
     ${renderSectionHead(
       'Evidence and provenance',
       'Clinical cohort framing should stay explicit before broader atlas expansion',
-      'The current prototype favors transparent subtype anchors, route logic, and release scope over synthetic completeness.'
+      'The current approach favors transparent subtype anchors, route logic, and release scope over synthetic completeness.'
     )}
     <div class="evidence-grid">
       <article class="card">
@@ -467,10 +435,9 @@ export function renderCohortsPage() {
   </main>`;
 }
 
-export function renderSubtypesPage(selectedSubtype = 'luad', mode = 'light') {
+export function renderSubtypesPage(mode = 'light') {
   return `<main class="page-shell">
     ${renderPageBanner('subtypes')}
-    ${renderSubtypeViewerSection(selectedSubtype, mode)}
     ${renderSubtypeSection()}
     <section class="section-block card" id="LC-ECOSYSTEM-001">
       ${renderSectionHead(

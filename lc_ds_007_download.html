@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lungcancer | Resistant and Metastatic Lung Cancer Dataset</title>
+    <link rel="icon" href="./src/assets/favicon.ico" />
+    <link rel="stylesheet" href="./src/styles.css" />
+    <style>
+      .download-table-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:18px 22px 12px}
+      .download-search-input{flex:1;min-width:260px;border:1px solid color-mix(in srgb,var(--border) 84%,transparent);border-radius:16px;padding:14px 16px;background:color-mix(in srgb,var(--surface) 90%,var(--backgroundStrong));color:var(--textPrimary)}
+      .download-reset-btn{white-space:nowrap}
+      .col-filter-input{display:block;width:100%;margin-top:6px;padding:5px 8px;border:1px solid color-mix(in srgb,var(--border) 70%,transparent);border-radius:8px;font-size:.78rem;background:color-mix(in srgb,var(--surface) 94%,var(--backgroundStrong));color:var(--textPrimary);font-weight:400;letter-spacing:0;text-transform:none}
+      .col-filter-input::placeholder{color:var(--textSecondary);opacity:.7}
+      .download-table-card{padding:0;overflow:hidden}
+      .download-table-card .table-container{overflow-x:auto;padding:0 22px 22px}
+      .download-table{width:100%;min-width:1100px;border-collapse:collapse}
+      .download-table th,.download-table td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid color-mix(in srgb,var(--border) 78%,transparent);font-size:.88rem}
+      .download-table th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--textSecondary);white-space:nowrap}
+      .download-table tbody tr:hover{background:color-mix(in srgb,var(--primarySoft) 42%,transparent)}
+      .download-table tbody tr.hidden-row{display:none}
+      .note-box{margin-top:18px;background:color-mix(in srgb,var(--surfaceAlt) 80%,transparent);border:1px solid color-mix(in srgb,var(--border) 74%,transparent);border-left:4px solid var(--primary);border-radius:12px;padding:16px 20px;font-size:.88rem;color:var(--textSecondary);line-height:1.6}
+      .note-box strong{color:var(--textPrimary)}
+      .page-nav{display:flex;justify-content:space-between;align-items:center;margin-top:40px;padding-top:22px;border-top:1px solid color-mix(in srgb,var(--border) 70%,transparent);gap:12px;flex-wrap:wrap}
+      .page-nav a{font-size:.85rem;font-weight:600;color:var(--primary);text-decoration:none}
+      .page-nav a:hover{text-decoration:underline}
+      .empty-row td{text-align:center;color:var(--textSecondary);font-size:.9rem;padding:28px}
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { cssVarsFor } from './src/theme.js';
+      import { databasePortfolio, siteMeta } from './src/data.js';
+      let mode = 'light';
+      const institutionalLinks=[{label:'Home',href:'http://www.gznl.org/',icon:'./src/assets/header/home.svg'},{label:'Database',href:'https://www.gznl.org/database/',icon:'./src/assets/header/database.svg'},{label:'Research',href:'https://www.gznl.org/research/',icon:'./src/assets/header/research.svg'},{label:'About us',href:'https://www.gznl.org/aboutus/',icon:'./src/assets/header/aboutus.svg'},{label:'GZNL-RDC',href:'https://gzlab.ac.cn/',icon:'./src/assets/header/gznl2.svg'}];
+      const tableRows=[];
+      function setTheme(m){const s=document.getElementById('theme-vars')??document.createElement('style');s.id='theme-vars';s.textContent=`:root { ${cssVarsFor(siteMeta.defaultTheme,m)} }`;document.head.appendChild(s);document.body.setAttribute('data-mode',m)}
+      function bundleHomeHref(site){return`${site.url}#home`}
+      function renderBundleSwitcher(){return`<div class="bundle-switcher"><div class="bundle-switcher-head"><span class="bundle-switcher-title">Lung Database Bundle</span><span class="bundle-domain">${siteMeta.customDomain}</span></div><div class="bundle-links" aria-label="Four lung database bundle switcher">${databasePortfolio.map(site=>`<a class="bundle-pill ${site.id===siteMeta.siteId?'active':''}" href="${bundleHomeHref(site)}" ${site.id===siteMeta.siteId?'aria-current="page"':''}><span class="bundle-pill-label">${site.label}</span><small>${site.axis}</small></a>`).join('')}</div></div>`}
+      function renderHeader(){return`<header class="app-header"><div class="institutional-nav">${institutionalLinks.map(item=>`<a class="institutional-link" href="${item.href}" target="_blank" rel="noopener noreferrer"><img src="${item.icon}" alt=""/><span>${item.label}</span></a>`).join('')}</div><div class="top-nav"><div class="brand-block"><div class="brand-mark">LC</div><div><p class="eyebrow">Cancer axis</p><div class="brand-title">${siteMeta.label}</div><p class="brand-copy">${siteMeta.strapline}</p></div></div><div class="nav-cluster"><div class="nav-utility-row">${renderBundleSwitcher()}<div class="nav-actions"><button type="button" class="ghost mode-toggle" id="mode-switcher">${mode==='light'?'Switch to dark mode':'Switch to light mode'}</button></div></div><nav class="nav-list" aria-label="lungcancer navigation"><a class="nav-btn" href="./index.html#home"><span class="nav-label">Home</span></a><a class="nav-btn" href="./index.html#cohorts"><span class="nav-label">Cohorts</span></a><a class="nav-btn" href="./index.html#subtypes"><span class="nav-label">Subtypes</span></a><a class="nav-btn" href="./index.html#biomarkers"><span class="nav-label">Biomarkers</span></a><a class="nav-btn" href="./index.html#clinical"><span class="nav-label">Clinical</span></a><a class="nav-btn active" href="./index.html#datasets"><span class="nav-label">Datasets</span></a><a class="nav-btn" href="./index.html#about"><span class="nav-label">About</span></a></nav></div></div></header>`}
+      function renderFooter(){return`<footer class="black-footer"><div class="black-footer-inner"><div class="footer-stack"><div class="footer-row"><span>© RNAcentre</span><span class="sep">|</span><a href="https://www.rnacentre.org/" target="_blank" rel="noopener noreferrer">www.rnacentre.org</a></div><div class="footer-row footer-bundle"><span class="footer-heading">Bundle</span>${databasePortfolio.map(site=>`<a href="${bundleHomeHref(site)}">${site.label}</a>`).join('')}</div></div></div></footer>`}
+      function renderTableRows(rows){if(!rows.length)return`<tr class="empty-row"><td colspan="11">No data available. Dataset content coming soon.</td></tr>`;return rows.map(r=>`<tr><td>${r.species??'—'}</td><td>${r.region??'—'}</td><td>${r.condition??'—'}</td><td>${r.pathogen??'—'}</td><td>${r.platform??'—'}</td><td>${r.seqMethod??'—'}</td><td>${r.year??'—'}</td><td>${r.cells??'—'}</td><td>${r.doi?`<a href="https://doi.org/${r.doi}" target="_blank">${r.doi}</a>`:'—'}</td><td>${r.accession??'—'}</td><td>—</td></tr>`).join('')}
+      function renderPage(){return`${renderHeader()}<main class="page-shell">
+          <section class="page-banner card">
+            <p class="eyebrow">RESISTANT &amp; METASTATIC · LC-DS-007</p>
+            <h1>Resistant and Metastatic Lung Cancer Cohort</h1>
+            <p>Frames escape-associated malignant states, suppressed immunity, and clinically aggressive progression. Browse, filter, and download single-cell data for resistant and metastatic lung cancer cohorts.</p>
+          </section>
+          <section class="section-block">
+            <article class="card download-table-card">
+              <div class="download-table-controls">
+                <input type="text" class="download-search-input" id="globalSearch" placeholder="Search across all columns..." aria-label="Search dataset table"/>
+                <button type="button" class="ghost download-reset-btn" id="resetBtn">Reset all filters</button>
+              </div>
+              <div class="table-container">
+                <table class="download-table" id="downloadTable">
+                  <thead><tr>
+                    <th>SPECIES<input type="text" class="col-filter-input" placeholder="Filter..." data-col="0"></th>
+                    <th>REGION<input type="text" class="col-filter-input" placeholder="Filter..." data-col="1"></th>
+                    <th>CONDITION<input type="text" class="col-filter-input" placeholder="Filter..." data-col="2"></th>
+                    <th>PATHOGEN<input type="text" class="col-filter-input" placeholder="Filter..." data-col="3"></th>
+                    <th>PLATFORM<input type="text" class="col-filter-input" placeholder="Filter..." data-col="4"></th>
+                    <th>SEQ METHOD<input type="text" class="col-filter-input" placeholder="Filter..." data-col="5"></th>
+                    <th>YEAR<input type="text" class="col-filter-input" placeholder="Filter..." data-col="6"></th>
+                    <th>CELLS<input type="text" class="col-filter-input" placeholder="Filter..." data-col="7"></th>
+                    <th>DOI<input type="text" class="col-filter-input" placeholder="Filter..." data-col="8"></th>
+                    <th>ACCESSION<input type="text" class="col-filter-input" placeholder="Filter..." data-col="9"></th>
+                    <th>DOWNLOAD</th>
+                  </tr></thead>
+                  <tbody id="tableBody">${renderTableRows(tableRows)}</tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+          <nav class="page-nav" aria-label="Dataset page navigation">
+            <a href="./lc_ds_006_download.html">← LC-DS-006: Early-Stage NSCLC Atlas</a>
+            <a href="./index.html#datasets">All datasets →</a>
+          </nav>
+        </main>${renderFooter()}`}
+      function applyFilters(){const globalQ=document.getElementById('globalSearch').value.trim().toLowerCase();const colFilters={};document.querySelectorAll('.col-filter-input').forEach(inp=>{const v=inp.value.trim().toLowerCase();if(v)colFilters[parseInt(inp.dataset.col,10)]=v});document.querySelectorAll('#tableBody tr:not(.empty-row)').forEach(row=>{const cells=row.querySelectorAll('td');const text=Array.from(cells).map(c=>c.textContent).join(' ').toLowerCase();let show=true;if(globalQ&&!text.includes(globalQ))show=false;for(const[col,filter]of Object.entries(colFilters)){if(!(cells[col]?.textContent??'').toLowerCase().includes(filter)){show=false;break}}row.classList.toggle('hidden-row',!show)})}
+      function bindFilters(){document.getElementById('globalSearch')?.addEventListener('input',applyFilters);document.querySelectorAll('.col-filter-input').forEach(inp=>inp.addEventListener('input',applyFilters));document.getElementById('resetBtn')?.addEventListener('click',()=>{document.getElementById('globalSearch').value='';document.querySelectorAll('.col-filter-input').forEach(inp=>inp.value='');applyFilters()})}
+      function render(){setTheme(mode);document.title='lungcancer | Resistant and Metastatic Lung Cancer Dataset';document.getElementById('app').innerHTML=renderPage();bindFilters();document.getElementById('mode-switcher')?.addEventListener('click',()=>{mode=mode==='light'?'dark':'light';render()})}
+      render();
+    </script>
+  </body>
+</html>

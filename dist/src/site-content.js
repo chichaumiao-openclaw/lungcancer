@@ -12,7 +12,7 @@ export const siteConfig = {
     about: 'About'
   },
   hero: {
-    eyebrow: 'Cancer-focused prototype',
+    eyebrow: 'Cancer-focused',
     title: 'Explore cohorts, subtypes, biomarkers, and therapy-linked signals in lung cancer',
     description:
       'LungCancer provides a precision-oncology-oriented shell for cohort stratification, tumor microenvironment analysis, and translational biomarker review.'
@@ -40,5 +40,5 @@ export const siteConfig = {
     'Microenvironment deconvolution references'
   ],
   about:
-    'Prototype for the lung cancer database portal in the four-database lung program.'
+    'Lung cancer database portal in the four-database lung program.'
 };

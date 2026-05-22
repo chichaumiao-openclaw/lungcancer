@@ -13,7 +13,7 @@ export const siteMeta = {
     'Map how malignant, immune, and stromal cell states reorganize across adenocarcinoma, squamous, neuroendocrine, treated, and resistant lung cancer contexts.',
   mission:
     'Build an atlas-centered resource for understanding malignant cell states, tumor microenvironment remodeling, and clinical heterogeneity in lung cancer.',
-  release: 'Prototype release 0.1',
+  release: 'Release 0.1',
   coverage: 'Subtype and clinical-feature MVP',
   focus:
     'Tumor ecosystems, subtype-specific malignant programs, biomarker search, and clinically stratified comparisons.',
@@ -82,7 +82,30 @@ export const subtypeBackbone = [
     summary:
       'LUAD serves as the dominant epithelial-lineage anchor for comparing malignant plasticity, alveolar-lineage identity, and oncogenic pathway heterogeneity.',
     traits: ['Adenocarcinoma', 'Alveolar lineage', 'Targetable programs'],
-    question: 'Which LUAD malignant programs track differentiation versus therapy-associated stress?'
+    question: 'Which LUAD malignant programs track differentiation versus therapy-associated stress?',
+    biologicalEmphasis: 'LUAD serves as the dominant epithelial-lineage anchor for comparing malignant plasticity, alveolar-lineage identity, and oncogenic pathway heterogeneity.',
+    dominantCompartments: ['AT2-like malignant', 'SPP1+ TAM', 'KLRB1+ CD8+ T', 'IGHA1+ plasma', 'COL1A1+ CAF'],
+    otherEvents: `<ul>
+      <li>AT2-to-AT1 differentiation arrest: malignant cells reactivate fetal AT2-like programs while losing gas-exchange identity</li>
+      <li>NKX2-1 amplification: most frequent LUAD genome event; pioneer TFs drive lineage-addicted growth</li>
+      <li>EGFR/KRAS oncogenic signaling: mutually exclusive driver mutations activate proliferation and survival programs</li>
+      <li>S100P+ malignant enrichment: high CNV-score S100P+ epithelial cells mark advanced-stage aggressive disease</li>
+      <li>SPP1+ macrophage remodeling: SPP1+ TAMs increase with stage, suppressing anti-tumor CD8+ T cell cytotoxicity</li>
+    </ul>`,
+    cellInteractions: `<ul>
+      <li>NKX2-1/HNF4A hybrid identity: dual TF activation creates hybrid alveolar-ductal LUAD states with distinct drug sensitivity</li>
+      <li>Malignant-myeloid crosstalk: SPP1+ TAMs engage CD44 on malignant cells and CD8+ T cells; SPP1-CD44 axis suppresses immunity</li>
+      <li>Fibroblast remodeling: COL1A1+ CAFs expand in advanced LUAD; FN1+ matrix programs reinforce immune exclusion</li>
+      <li>TLS formation: IGHA1+/IGHG1+ plasma cells associate with tertiary lymphoid structures; TLS+ LUAD responds better to ICI</li>
+      <li>KLRB1+ CD8+ T-NK cross-talk: NK cell-mediated cytotoxicity pathway links KLRB1+ CD8+ T cells to anti-tumor activity</li>
+    </ul>`,
+    moreQuestions: `<ul>
+      <li>Which LUAD malignant programs track alveolar differentiation versus therapy-associated stress?</li>
+      <li>How does NKX2-1 dosage modulation (copy-number amplification vs. haploinsufficiency) alter lineage-addiction dependency?</li>
+      <li>Can S100P+ malignant cells be therapeutically targeted without damaging normal alveolar epithelium?</li>
+      <li>What determines whether KLRB1+ CD8+ T cells are maintained or depleted under EGFR TKI pressure?</li>
+      <li>Is the AT2-like DTP program a reversible adaptive state or a committed resistance precursor?</li>
+    </ul>`
   },
   {
     rank: 2,
@@ -96,7 +119,29 @@ export const subtypeBackbone = [
     summary:
       'LUSC emphasizes basal-like malignant programs, epithelial stress, and stromal-immune remodeling distinct from adenocarcinoma lineage logic.',
     traits: ['Squamous identity', 'Basal-like states', 'Stromal remodeling'],
-    question: 'How do squamous malignant ecosystems diverge from adenocarcinoma and therapy-linked states?'
+    question: 'How do squamous malignant ecosystems diverge from adenocarcinoma and therapy-linked states?',
+    otherEvents: `<ul>
+      <li>Basal cell origin: TP63+/KRT5+ basal cells give rise to malignant squamous epithelium via aberrant differentiation</li>
+      <li>SOX2 amplification: SOX2 is the master squamous lineage TF; amplification drives basal-like malignant identity</li>
+      <li>Keratinization and squamous differentiation: KRT6A, KRT16, and SPRR family genes mark keratinizing LUSC states</li>
+      <li>Epithelial-mesenchymal cross-talk: CAFs (COL1A1+, FN1+) remodel ECM; CAF-derived NOTCH ligands sustain squamous identity</li>
+      <li>Matrix-heavy TME: fibrotic stroma (COL1A1, ELN) creates physical barrier contributing to immunotherapy resistance</li>
+      <li>LUAD-to-LUSC transdifferentiation: loss of PRC2 and NKX2-1 gain enables lineage switching under therapy pressure</li>
+    </ul>`,
+    cellInteractions: `<ul>
+      <li>SOX2/TP63 co-activation: SOX2 and deltaNP63 form a reinforcing transcriptional circuit sustaining squamous identity</li>
+      <li>CAF-malignant cross-talk: COL1A1+ CAFs suppress SOX2 via TGF-beta signaling; TGF-beta inhibition restores SOX2 and sensitivity</li>
+      <li>NOTCH signaling: NOTCH1-3 activation supports squamous differentiation; NOTCH blockade shifts cells toward a more invasive state</li>
+      <li>Immune exclusion: fibrotic COL1A1+ matrix correlates with low T cell infiltration and poor ICI response</li>
+      <li>EGFR pathway rewiring: EGFR signaling in LUSC drives squamous differentiation programs rather than proliferation alone</li>
+    </ul>`,
+    moreQuestions: `<ul>
+      <li>How do squamous malignant ecosystems diverge from adenocarcinoma and therapy-linked states?</li>
+      <li>What drives LUAD-to-LUSC transdifferentiation, and can it be prevented or reversed?</li>
+      <li>Does COL1A1+ CAF depletion restore immune checkpoint inhibitor efficacy in LUSC?</li>
+      <li>How does smoking-induced mutagenesis shape basal-like clonal architecture in early LUSC lesions?</li>
+      <li>Can SMARCA4-deficient LUSC be distinguished from true SCLC based on transcriptional programs?</li>
+    </ul>`
   },
   {
     rank: 3,
@@ -110,7 +155,30 @@ export const subtypeBackbone = [
     summary:
       'SCLC provides the neuroendocrine anchor for high-proliferation malignant programs, lineage plasticity, and distinct immune exclusion patterns.',
     traits: ['Neuroendocrine', 'High proliferation', 'Immune exclusion'],
-    question: 'Which neuroendocrine malignant programs are preserved versus reconfigured under treatment pressure?'
+    question: 'Which neuroendocrine malignant programs are preserved versus reconfigured under treatment pressure?',
+    otherEvents: `<ul>
+      <li>Four TF subtypes (SCLC-A/N/P/I): ASCL1, NEUROD1, POU2F3, and inflamed subtypes define transcriptionally distinct SCLC states</li>
+      <li>YAP1 is not a validated subtype driver: it marks NE-to-non-NE transition; many YAP1-high lines are misclassified SMARCA4-deficient tumors</li>
+      <li>NE-to-non-NE plasticity: NOTCH activation, MYC overexpression, and SMARCA4 loss drive unidirectional neuroendocrine-to-non-NE conversion</li>
+      <li>DLL3 surface expression: NE subtypes express high DLL3; target of tarlatamab (bispecific T cell engager)</li>
+      <li>EZH2-mediated immune evasion: H3K27me3 silencing of MHC class I antigen presentation machinery limits T cell recognition</li>
+      <li>Vasculogenic mimicry: non-NE cells uniquely generate perfused tumor vessels; associated with poor prognosis</li>
+    </ul>`,
+    cellInteractions: `<ul>
+      <li>NOTCH-to-REST axis: NOTCH activation leads to REST up-regulation, ASCL1/NEUROD1 repression, and NE-to-non-NE transition</li>
+      <li>MYC-driven subtype evolution: MYC overexpression destabilizes ASCL1, driving temporal evolution from ASCL1 to NEUROD1 to non-NE</li>
+      <li>SMARCA4/SWI-SNF dependency: SMARCA4 maintains NE state; POU2F3 subtype is SWI/SNF-dependent and BRD9-inhibitor sensitive</li>
+      <li>Immune exclusion in NE tumors: EZH2 and LSD1 cooperatively silence MHC class I APM genes; limits ICI efficacy</li>
+      <li>Non-NE inflamed microenvironment: NE-inflamed subtype (low TAMs + high Teff) shows better ICI outcomes; non-NE inflamed shows poor response</li>
+      <li>Neuronal crosstalk in metastasis: SCLC cells acquire neuronal features enabling communication with astrocytes at brain metastatic sites</li>
+    </ul>`,
+    moreQuestions: `<ul>
+      <li>Which neuroendocrine malignant programs are preserved versus reconfigured under treatment pressure?</li>
+      <li>Can lineage plasticity (NE-to-non-NE) be blocked therapeutically without damaging normal neuroendocrine cells?</li>
+      <li>What fraction of ICI-refractory SCLC is explained by intrinsic immune exclusion versus adaptive resistance?</li>
+      <li>Does tarlatamab efficacy vary by SCLC TF subtype, and can responders be prospectively identified?</li>
+      <li>How does chemotherapy provoke the burst of intratumoral heterogeneity observed at relapse?</li>
+    </ul>`
   },
   {
     rank: 4,
@@ -124,7 +192,29 @@ export const subtypeBackbone = [
     summary:
       'Treated contexts highlight cell-state adaptation, survival programs, and microenvironment remodeling linked to ongoing clinical intervention.',
     traits: ['On-treatment', 'Residual disease', 'Stress adaptation'],
-    question: 'Which malignant and immune states persist under therapy before frank resistance emerges?'
+    question: 'Which malignant and immune states persist under therapy before frank resistance emerges?',
+    otherEvents: `<ul>
+      <li>Drug-tolerant persister (DTP) cells: chromatin-mediated reversible drug-tolerant state; not genetically resistant; precedes acquired resistance</li>
+      <li>Embryonic diapause-like state: Myc suppression enables survival; cells enter a dormant, non-proliferative state resembling blastocyst diapause</li>
+      <li>AT2-like program reactivation: residual LUAD cells reactivate fetal alveolar programs (SFTPC+) as a survival mechanism</li>
+      <li>SPP1+ macrophage expansion: SPP1+ TAMs increase with on-treatment progression; suppress KLRB1+ CD8+ T cell activity</li>
+      <li>GPX4-dependent ferroptosis protection: DTP cells up-regulate GPX4 to avoid ferroptosis; GPX4 inhibition kills persisters</li>
+      <li>Adaptive mutability: therapy-induced APOBEC3A accelerates subclonal evolution toward resistance</li>
+    </ul>`,
+    cellInteractions: `<ul>
+      <li>DTP-myeloid cross-talk: SPP1+ TAMs sustain DTP survival via paracrine signaling; CD44-SPP1 axis also suppresses CD8+ T cells</li>
+      <li>Therapy-induced secretome: dying tumor cells secrete FGFs and IL-6-family cytokines that promote survival of neighboring persisters</li>
+      <li>AT2-immune co-evolution: residual AT2-like malignant cells co-exist with declining KLRB1+ CD8+ T cells and expanding IGHA1+ plasma cells</li>
+      <li>mTOR addiction: paracrine P2X4 stimulation from dying cells creates mTOR dependence in surviving persisters; targetable vulnerability</li>
+      <li>Adaptive immunity requirement: durable responses to targeted therapy require intact adaptive immunity (e.g., alectinib in ALK+ LC)</li>
+    </ul>`,
+    moreQuestions: `<ul>
+      <li>Which malignant and immune states persist under therapy before frank resistance emerges?</li>
+      <li>Can DTP-eliminating strategies (e.g., GPX4i, ferroptosis induction) be safely added to first-line EGFR TKI?</li>
+      <li>Does ctDNA clearance at the DTP stage predict durable response versus imminent relapse?</li>
+      <li>How does the AT2-like program in residual disease relate to the cell-of-origin hypothesis for LUAD?</li>
+      <li>Can liquid biopsy epigenomics distinguish persister burden from genuine resistant clones in real time?</li>
+    </ul>`
   },
   {
     rank: 5,
@@ -138,7 +228,31 @@ export const subtypeBackbone = [
     summary:
       'Resistant and metastatic disease states expose therapy escape, immune suppression, stromal exclusion, and highly plastic malignant programs.',
     traits: ['Resistance', 'Metastatic spread', 'Immune suppression'],
-    question: 'Which escape-associated states track progression, therapy failure, and metastatic competence?'
+    question: 'Which escape-associated states track progression, therapy failure, and metastatic competence?',
+    otherEvents: `<ul>
+      <li>On-target resistance: secondary mutations in EGFR (T790M, C797S) and KRAS (G12C) abrogate drug binding</li>
+      <li>Bypass resistance: MET amplification, HER3 activation, and other RTK re-wiring bypass blocked oncogenic signaling</li>
+      <li>LUAD-to-SCLC transformation: RB1 and TP53 loss enables transformation to neuroendocrine carcinoma; loses EGFR addiction</li>
+      <li>EMT and mesenchymal transition: ZEB1/SNAI1 up-regulation drives invasion, metastasis, and stemness</li>
+      <li>Therapy-induced APOBEC3A: elevated APOBEC3A mutagenesis drives subclonal diversity and cross-resistance to multiple agents</li>
+      <li>NFIB-driven metastasis: FOXA1/FOXA2-driven chromatin opening at NFIB enables brain and liver metastatic colonization</li>
+      <li>SPP1+ myeloid dominance: SPP1+ TAMs dominate the resistant TME; secrete immunosuppressive cytokines and promote EMT</li>
+    </ul>`,
+    cellInteractions: `<ul>
+      <li>Myeloid immune suppression: SPP1+ TAMs engage CD44 on malignant cells and exclude T cells; VISTA/PD-L1 co-expression adds checkpoint burden</li>
+      <li>Myofibroblast CAF ecosystem: ACTA2+/COL1A1+ myofibroblasts produce dense fibrotic matrix; correlates with immunotherapy resistance</li>
+      <li>ecDNA-driven resistance: MYC and EGFR extrachromosomal DNA amplification enables heterogeneous, rapid resistance evolution</li>
+      <li>Chemotherapy-induced ITH burst: WGS of longitudinally sampled patients shows chemotherapy provokes emergence of many subclones at relapse</li>
+      <li>Neuronal metastasis niche: SCLC cells co-opt neuronal programs (ASCL1, NEUROD1) to communicate with astrocytes and colonize brain</li>
+      <li>Endothelial-malignant cross-talk: VEGF/VEGFR signaling remodeled; resistant tumors show altered angiogenesis and vessel co-option</li>
+    </ul>`,
+    moreQuestions: `<ul>
+      <li>Which escape-associated states track progression, therapy failure, and metastatic competence?</li>
+      <li>Can MET amplification and other bypass resistance pathways be predicted before clinical progression?</li>
+      <li>What is the molecular trigger for LUAD-to-SCLC transformation, and can it be intercepted?</li>
+      <li>Does targeting SPP1+ TAMs (via CD44 blockade or SPP1 neutralizing antibodies) restore immunotherapy sensitivity?</li>
+      <li>How does therapy-induced APOBEC3A mutagenesis interact with germline immune surveillance to shape the resistant TME?</li>
+    </ul>`
   }
 ];
 
@@ -146,7 +260,7 @@ export const heroMetrics = [
   { label: 'Subtype anchors', value: '5', detail: 'LUAD to resistant disease' },
   { label: 'Clinical frames', value: '5', detail: 'stage, treatment, response, site, progression' },
   { label: 'Biomarker markers', value: '10', detail: 'searchable malignant and TME signals' },
-  { label: 'Prototype datasets', value: '5', detail: 'cohort-scoped release rows' }
+  { label: 'Datasets', value: '5', detail: 'cohort-scoped release rows' }
 ];
 
 export const cohortMatrix = [
@@ -338,53 +452,14 @@ export const clinicalFeatureCatalog = [
 export const datasetReleases = [
   {
     id: 'LC-DS-001',
-    title: 'Resected early-stage NSCLC atlas',
-    cohortScope: 'Primary early-stage cohort',
-    structure: 'Tumor plus adjacent tissue',
-    cells: '61,400 cells',
-    assays: 'scRNA-seq',
-    status: 'Prototype metadata',
-    note: 'Reference cohort for malignant versus non-malignant ecosystem comparison before systemic therapy.'
-  },
-  {
-    id: 'LC-DS-002',
-    title: 'Advanced LUAD treatment-stratified panel',
-    cohortScope: 'LUAD advanced cohort',
+    title: 'Advanced LUAD Treatment-Stratified Panel',
+    cohortScope: 'LUAD, LUSC, SCLC',
     structure: 'Primary and biopsy tumor tissue',
-    cells: '57,900 cells',
-    assays: 'scRNA-seq + clinical annotation',
-    status: 'Prototype metadata',
-    note: 'Supports subtype and treatment-linked comparison of adenocarcinoma malignant states.'
-  },
-  {
-    id: 'LC-DS-003',
-    title: 'Squamous tumor ecosystem reference',
-    cohortScope: 'LUSC cohort',
-    structure: 'Tumor and stromal compartments',
-    cells: '46,200 cells',
+    cells: '',
     assays: 'scRNA-seq',
-    status: 'Prototype metadata',
-    note: 'Anchors squamous malignant states and matrix-heavy microenvironment remodeling.'
-  },
-  {
-    id: 'LC-DS-004',
-    title: 'Neuroendocrine / SCLC malignant atlas',
-    cohortScope: 'SCLC cohort',
-    structure: 'High-grade neuroendocrine tumor tissue',
-    cells: '34,700 cells',
-    assays: 'scRNA-seq',
-    status: 'Prototype metadata',
-    note: 'Provides the neuroendocrine anchor for proliferative malignant and immune-excluded states.'
-  },
-  {
-    id: 'LC-DS-005',
-    title: 'Resistant and metastatic lung cancer cohort',
-    cohortScope: 'Post-treatment resistant cohort',
-    structure: 'Metastatic and progressive lesions',
-    cells: '41,900 cells',
-    assays: 'scRNA-seq + treatment history',
-    status: 'Prototype metadata',
-    note: 'Frames escape-associated malignant states, suppressed immunity, and clinically aggressive progression.'
+    status: 'Metadata',
+    note: 'Single-cell atlas of LUAD, LUSC, and SCLC across treatment and resistance stages.',
+    url: './lc_ds_001_download.html'
   }
 ];
 
@@ -392,7 +467,7 @@ export const evidenceHighlights = [
   { label: 'Subtype anchors', value: '5', detail: 'LUAD, LUSC, SCLC, treated, resistant' },
   { label: 'Primary filters', value: '6', detail: 'subtype, stage, treatment, primary/metastatic, cell type, dataset' },
   { label: 'Clinical lenses', value: '5', detail: 'stage, therapy, response, microenvironment, progression' },
-  { label: 'Assumption notes', value: '5', detail: 'each release states cohort framing and prototype clinical scope' }
+  { label: 'Assumption notes', value: '5', detail: 'each release states cohort framing and clinical scope' }
 ];
 
 export const coreQuestions = [
@@ -412,7 +487,7 @@ export const targetUsers = [
 export const scopeBoundaries = [
   'The MVP focuses on lung cancer single-cell atlases rather than infectious disease or developmental datasets.',
   'Subtype and treatment contexts are included to organize tumor ecosystems, not to replace full clinical registries.',
-  'Current subtype groups are prototype anchors rather than a complete taxonomy of all lung cancer entities.'
+  'Current subtype groups are anchors rather than a complete taxonomy of all lung cancer entities.'
 ];
 
 export const metadataPriorities = [
@@ -443,7 +518,7 @@ export const methodsResources = [
 
 export const provenanceHistory = [
   '2026-03-18 four-database scientific program defined',
-  '2026-04-04 lungcancer selected for prototype implementation',
+  '2026-04-04 lungcancer selected for implementation',
   '2026-04-04 lungcancer cancer-atlas MVP workspace created'
 ];
 
@@ -482,7 +557,7 @@ export const routeCopy = {
     eyebrow: 'Dataset releases',
     title: 'Release-scoped cohort tables and provenance',
     description:
-      'Review the current prototype cancer datasets, their assay scope, and the comparison logic behind the subtype and clinical framing of the portal.'
+      'Review the current cancer datasets, their assay scope, and the comparison logic behind the subtype and clinical framing of the portal.'
   },
   about: {
     eyebrow: 'Mission and scope',

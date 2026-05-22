@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lungcancer | Advanced LUAD Dataset</title>
+    <link rel="icon" href="./src/assets/favicon.ico" />
+    <link rel="stylesheet" href="./src/styles.css" />
+    <style>
+      /* ── Download page: data table + filter ── */
+      .download-table-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 18px 22px 12px;
+      }
+      .download-search-input {
+        flex: 1;
+        min-width: 260px;
+        border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+        border-radius: 16px;
+        padding: 14px 16px;
+        background: color-mix(in srgb, var(--surface) 90%, var(--backgroundStrong));
+        color: var(--textPrimary);
+      }
+      .download-reset-btn {
+        white-space: nowrap;
+      }
+      .col-filter-input {
+        display: block;
+        width: 100%;
+        margin-top: 6px;
+        padding: 5px 8px;
+        border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+        border-radius: 8px;
+        font-size: 0.78rem;
+        background: color-mix(in srgb, var(--surface) 94%, var(--backgroundStrong));
+        color: var(--textPrimary);
+        font-weight: 400;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+      .col-filter-input::placeholder { color: var(--textSecondary); opacity: 0.7; }
+      .section-block .download-table-card {
+        padding: 0;
+        overflow: hidden;
+      }
+      .download-table-card .table-container {
+        overflow-x: auto;
+        padding: 0 22px 22px;
+      }
+      /* ── Download page: table core (12 columns) ── */
+      .download-table {
+        width: 100%;
+        min-width: 800px;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+      /* ① 绝对居中对齐 — th / td 全部居中 */
+      .download-table th,
+      .download-table td {
+        text-align: center !important;
+        vertical-align: middle !important;
+        border-bottom: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+        font-size: 0.88rem;
+      }
+      /* ② 表头专属样式 */
+      .download-table th {
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--textSecondary);
+        white-space: nowrap;
+        padding: 12px 16px;
+      }
+      /* ③ 内容单元格 — 用 flex 居中，防止 inline 元素被 overflow 截断 */
+      .download-table td {
+        padding: 10px 16px;
+        display: table-cell; /* 保持 table-cell 以便 overflow 生效 */
+        overflow: hidden;
+      }
+      /* ④ 文本截断包装器（普通文本列） */
+      .td-truncate {
+        display: inline-block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+      }
+      /* ⑤ 普通链接 — 不截断，居中显示 */
+      .download-table td a:not(.download-link-btn) {
+        display: inline-block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        text-decoration: none;
+        color: var(--primary);
+      }
+      .download-table td a:not(.download-link-btn):hover {
+        text-decoration: underline;
+      }
+
+      /* ── Per-column width & padding (12 columns) ── */
+      .download-table th:nth-child(1),
+      .download-table td:nth-child(1)  { width: 60px;   max-width: 60px;   } /* NUMBER    */
+      .download-table th:nth-child(2),
+      .download-table td:nth-child(2)  { width: 80px;   max-width: 80px;   } /* SPECIES   */
+      .download-table th:nth-child(3),
+      .download-table td:nth-child(3)  { width: 110px;  max-width: 110px;  } /* ATLAS     */
+      .download-table th:nth-child(4),
+      .download-table td:nth-child(4)  { width: 130px;  max-width: 130px;  } /* STATUS    */
+      .download-table th:nth-child(5),
+      .download-table td:nth-child(5)  { width: 110px;  max-width: 110px;  } /* PLATFORM  */
+      .download-table th:nth-child(6),
+      .download-table td:nth-child(6)  { width: 100px;  max-width: 100px;  } /* SEQ-TYPE  */
+      .download-table th:nth-child(7),
+      .download-table td:nth-child(7)  { width: 60px;   max-width: 60px;   } /* YEAR      */
+      .download-table th:nth-child(8),
+      .download-table td:nth-child(8)  { width: 160px;  max-width: 160px;  padding-left: 20px !important; } /* ACCESSION */
+      .download-table th:nth-child(9),
+      .download-table td:nth-child(9)  { width: 90px;   max-width: 90px;   padding-right: 20px !important; } /* LINK — extra right padding to separate from ACCESSION */
+      .download-table th:nth-child(10),
+      .download-table td:nth-child(10) { width: 170px;  max-width: 170px;  } /* DATASETS  */
+      .download-table th:nth-child(11),
+      .download-table td:nth-child(11) { width: 200px;  max-width: 200px;  } /* DOI       */
+      .download-table th:nth-child(12),
+      .download-table td:nth-child(12) { width: 110px;  max-width: 110px;  } /* SHARE / DOWNLOAD */
+
+      /* ⑥ 行 hover */
+      .download-table tbody tr:hover {
+        background: color-mix(in srgb, var(--primarySoft) 42%, transparent);
+      }
+      .download-table tbody tr.hidden-row { display: none; }
+
+      /* ── ⑦ Download 按钮 — 干净小药丸，不截断文本 ── */
+      .download-link-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #6b21a8;              /* 深紫色文字 */
+        background: #f3e8ff;         /* 浅紫色背景 */
+        border: 1.5px solid #c084fc; /* 紫色边框 */
+        text-decoration: none !important;
+        white-space: nowrap;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .download-link-btn:hover {
+        background: #c084fc;
+        color: #fff;
+        border-color: #c084fc;
+      }
+      .download-link-btn span {
+        text-decoration: none !important;
+      }
+
+      /* ── Note box ── */
+      .note-box {
+        margin-top: 18px;
+        background: color-mix(in srgb, var(--surfaceAlt) 80%, transparent);
+        border: 1px solid color-mix(in srgb, var(--border) 74%, transparent);
+        border-left: 4px solid var(--primary);
+        border-radius: 12px;
+        padding: 16px 20px;
+        font-size: 0.88rem;
+        color: var(--textSecondary);
+        line-height: 1.6;
+      }
+      .note-box strong { color: var(--textPrimary); }
+
+      /* ── Page nav ── */
+      .page-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 40px;
+        padding-top: 22px;
+        border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .page-nav a {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      .page-nav a:hover { text-decoration: underline; }
+
+      /* ── Empty state ── */
+      .empty-row td {
+        text-align: center;
+        color: var(--textSecondary);
+        font-size: 0.9rem;
+        padding: 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script type="module">
+      import { cssVarsFor } from './src/theme.js';
+      import { databasePortfolio, siteMeta } from './src/data.js';
+      import { downloadRows } from './src/lc_lungcancer_download_data.js';
+
+      let mode = 'light';
+
+      const institutionalLinks = [
+        { label: 'Home', href: 'http://www.gznl.org/', icon: './src/assets/header/home.svg' },
+        { label: 'Database', href: 'https://www.gznl.org/database/', icon: './src/assets/header/database.svg' },
+        { label: 'Research', href: 'https://www.gznl.org/research/', icon: './src/assets/header/research.svg' },
+        { label: 'About us', href: 'https://www.gznl.org/aboutus/', icon: './src/assets/header/aboutus.svg' },
+        { label: 'GZNL-RDC', href: 'https://gzlab.ac.cn/', icon: './src/assets/header/gznl2.svg' }
+      ];
+
+      // Data imported from ./src/lc_lungcancer_download_data.js
+      const tableRows = downloadRows;
+
+      function setTheme(modeKey) {
+        const styleTag = document.getElementById('theme-vars') ?? document.createElement('style');
+        styleTag.id = 'theme-vars';
+        styleTag.textContent = `:root { ${cssVarsFor(siteMeta.defaultTheme, modeKey)} }`;
+        document.head.appendChild(styleTag);
+        document.body.setAttribute('data-mode', modeKey);
+      }
+
+      function bundleHomeHref(site) { return `${site.url}#home`; }
+
+      function renderBundleSwitcher() {
+        return `<div class="bundle-switcher">
+          <div class="bundle-switcher-head">
+            <span class="bundle-switcher-title">Lung Database Bundle</span>
+            <span class="bundle-domain">${siteMeta.customDomain}</span>
+          </div>
+          <div class="bundle-links" aria-label="Four lung database bundle switcher">
+            ${databasePortfolio.map(site => `<a
+              class="bundle-pill ${site.id === siteMeta.siteId ? 'active' : ''}"
+              href="${bundleHomeHref(site)}"
+              ${site.id === siteMeta.siteId ? 'aria-current="page"' : ''}
+            ><span class="bundle-pill-label">${site.label}</span><small>${site.axis}</small></a>`).join('')}
+          </div>
+        </div>`;
+      }
+
+      function renderHeader() {
+        return `<header class="app-header">
+          <div class="institutional-nav">
+            ${institutionalLinks.map(item => `<a class="institutional-link" href="${item.href}" target="_blank" rel="noopener noreferrer">
+              <img src="${item.icon}" alt="" /><span>${item.label}</span>
+            </a>`).join('')}
+          </div>
+          <div class="top-nav">
+            <div class="brand-block">
+              <div class="brand-mark">LC</div>
+              <div>
+                <p class="eyebrow">Cancer axis</p>
+                <div class="brand-title">${siteMeta.label}</div>
+                <p class="brand-copy">${siteMeta.strapline}</p>
+              </div>
+            </div>
+            <div class="nav-cluster">
+              <div class="nav-utility-row">
+                ${renderBundleSwitcher()}
+                <div class="nav-actions">
+                  <button type="button" class="ghost mode-toggle" id="mode-switcher">
+                    ${mode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                  </button>
+                </div>
+              </div>
+              <nav class="nav-list" aria-label="lungcancer navigation">
+                <a class="nav-btn" href="./index.html#home"><span class="nav-label">Home</span></a>
+                <a class="nav-btn" href="./index.html#cohorts"><span class="nav-label">Cohorts</span></a>
+                <a class="nav-btn" href="./index.html#subtypes"><span class="nav-label">Subtypes</span></a>
+                <a class="nav-btn" href="./index.html#biomarkers"><span class="nav-label">Biomarkers</span></a>
+                <a class="nav-btn" href="./index.html#clinical"><span class="nav-label">Clinical</span></a>
+                <a class="nav-btn active" href="./index.html#datasets"><span class="nav-label">Datasets</span></a>
+                <a class="nav-btn" href="./index.html#about"><span class="nav-label">About</span></a>
+              </nav>
+            </div>
+          </div>
+        </header>`;
+      }
+
+      function renderFooter() {
+        return `<footer class="black-footer">
+          <div class="black-footer-inner">
+            <div class="footer-stack">
+              <div class="footer-row">
+                <span>© RNAcentre</span>
+                <span class="sep">|</span>
+                <a href="https://www.rnacentre.org/" target="_blank" rel="noopener noreferrer">www.rnacentre.org</a>
+              </div>
+              <div class="footer-row footer-bundle">
+                <span class="footer-heading">Bundle</span>
+                ${databasePortfolio.map(site => `<a href="${bundleHomeHref(site)}">${site.label}</a>`).join('')}
+              </div>
+            </div>
+          </div>
+        </footer>`;
+      }
+
+      function renderCell(cell, rawText) {
+        if (cell.type === 'link') {
+          const url = cell.url || '#';
+          const display = url && url !== '#' ? 'link' : '—';
+          return url && url !== '#'
+            ? `<a href="${url}" target="_blank" rel="noopener noreferrer" title="${url}">${display}</a>`
+            : '—';
+        }
+        if (cell.type === 'doi') {
+          const url = cell.url || '';
+          const display = cell.value || '';
+          const title = url || display;
+          return url
+            ? `<a href="${url}" target="_blank" rel="noopener noreferrer" class="td-truncate" title="${title}">${display}</a>`
+            : '—';
+        }
+        if (cell.type === 'download') {
+          const url = cell.url || '#';
+          return url && url !== '#'
+            ? `<a href="${url}" target="_blank" rel="noopener noreferrer" class="download-link-btn">Download</a>`
+            : '—';
+        }
+        const text = cell.value || '';
+        return text ? `<span class="td-truncate" title="${text}">${text}</span>` : '';
+      }
+
+      function renderTableRows(rows) {
+        if (!rows.length) {
+          return `<tr class="empty-row"><td colspan="12">No data available.</td></tr>`;
+        }
+        return rows.map(row => `<tr>${row.cells.map(cell => `<td>${renderCell(cell)}</td>`).join('')}</tr>`).join('');
+      }
+
+      function renderPage() {
+        return `${renderHeader()}
+        <main class="page-shell">
+          <section class="page-banner card">
+            <p class="eyebrow">LUNG CANCER COHORTS · LC-DS-001</p>
+            <h1>Lung Cancer Subtype & Treatment-Stratified Panel</h1>
+            <p>Supports clinical subtype and treatment-linked comparison across LUAD, LUSC, and SCLC cohorts, spanning treatment-naive, responsive, and drug-resistant malignant states. Browse, filter, and download integrated single-cell data.</p>
+          </section>
+
+          <section class="section-block">
+            <article class="card download-table-card">
+              <div class="download-table-controls">
+                <input
+                  type="text"
+                  class="download-search-input"
+                  id="globalSearch"
+                  placeholder="Search across all columns..."
+                  aria-label="Search dataset table"
+                />
+                <button type="button" class="ghost download-reset-btn" id="resetBtn">Reset all filters</button>
+              </div>
+              <div class="table-container">
+                <table class="download-table" id="downloadTable">
+                  <thead>
+                    <tr>
+                      <th>NUMBER <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="0"></th>
+                      <th>SPECIES <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="1"></th>
+                      <th>ATLAS <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="2"></th>
+                      <th>STATUS <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="3"></th>
+                      <th>PLATFORM <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="4"></th>
+                      <th>SEQ-TYPE <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="5"></th>
+                      <th>YEAR <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="6"></th>
+                      <th>ACCESSION <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="7"></th>
+                      <th>LINK <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="8"></th>
+                      <th>DATASETS <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="9"></th>
+                      <th>DOI <input type="text" class="col-filter-input" placeholder="Filter..." data-col-filter="10"></th>
+                      <th>SHARE</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody">
+                    ${renderTableRows(tableRows)}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <nav class="page-nav" aria-label="Dataset page navigation">
+            <a href="./index.html#datasets">← All datasets</a>
+          </nav>
+        </main>
+        ${renderFooter()}`;
+      }
+
+      function applyFilters() {
+        const globalQ = document.getElementById('globalSearch').value.trim().toLowerCase();
+        const colInputs = document.querySelectorAll('.col-filter-input');
+        const colFilters = {};
+        colInputs.forEach(inp => {
+          const col = parseInt(inp.dataset.colFilter, 10);
+          const v = inp.value.trim().toLowerCase();
+          if (!isNaN(col) && v) colFilters[col] = v;
+        });
+
+        const tbody = document.getElementById('tableBody');
+        const rows = tbody.querySelectorAll('tr:not(.empty-row)');
+
+        rows.forEach(row => {
+          const cells = row.querySelectorAll('td');
+          const text = Array.from(cells).map(c => c.textContent).join(' ').toLowerCase();
+          let show = true;
+
+          if (globalQ && !text.includes(globalQ)) show = false;
+
+          for (const [col, filter] of Object.entries(colFilters)) {
+            const cellText = (cells[col]?.textContent ?? '').toLowerCase();
+            if (!cellText.includes(filter)) { show = false; break; }
+          }
+
+          row.classList.toggle('hidden-row', !show);
+        });
+      }
+
+      function bindFilters() {
+        document.getElementById('globalSearch')?.addEventListener('input', applyFilters);
+        document.querySelectorAll('.col-filter-input').forEach(inp => inp.addEventListener('input', applyFilters));
+        document.getElementById('resetBtn')?.addEventListener('click', () => {
+          document.getElementById('globalSearch').value = '';
+          document.querySelectorAll('.col-filter-input').forEach(inp => inp.value = '');
+          applyFilters();
+        });
+      }
+
+      function render() {
+        setTheme(mode);
+        document.title = 'Lung Cancer Cohort | LC-DS-001';
+        document.getElementById('app').innerHTML = renderPage();
+        bindFilters();
+        document.getElementById('mode-switcher')?.addEventListener('click', () => {
+          mode = mode === 'light' ? 'dark' : 'light';
+          render();
+        });
+      }
+
+      render();
+    </script>
+  </body>
+</html>
